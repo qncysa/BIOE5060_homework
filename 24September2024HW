@@ -5,3 +5,11 @@ git commit -m "first commit"
 git branch -M main
 git remote add origin https://github.com/qncysa/BIOE5060_homework.git
 git push -u origin main
+
+git clone
+git add
+git mv
+git rm
+git commit
+git checkout -b
+git tag
