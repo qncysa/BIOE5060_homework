@@ -38,6 +38,6 @@ jobs:                             # workflows are made of parallel jobs running 
           echo 'CC=gcc' >> $GITHUB_ENV   # using this to change/add environment variables, here we set C compiler on windows as gcc
       - name: Build and test program Q1 # build software
         run: |
-          cd BIOE5060_homework/HW03/Q1
+          cd HW03/Q1
           make clean
           make test
