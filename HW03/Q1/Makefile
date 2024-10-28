@@ -14,5 +14,5 @@ while.txt: whileloop
 test: for.txt while.txt
 	diff for.txt while.txt > diff.txt
 	[ -s diff.txt ] && echo "false" || echo "true"
-
-
+clean:
+	rm -rf for.txt while.txt
