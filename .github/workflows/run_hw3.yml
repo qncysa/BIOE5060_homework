@@ -41,3 +41,13 @@ jobs:                             # workflows are made of parallel jobs running 
           cd HW03/Q1
           make clean
           make test
+      - name: Build and test program Q2 # build software
+        run: |
+          cd HW03/Q2
+          make clean
+          make test
+      - name: Build and test program Q3 # build software
+        run: |
+          cd HW03/Q3
+          make clean
+          make test

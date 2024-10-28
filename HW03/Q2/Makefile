@@ -6,4 +6,5 @@ fizzbuzz.txt: fizzbuzz
 test: fizzbuzz.txt
 	diff fizzbuzz.txt fizzbuzz_expected.txt > diff.txt
 	[ -s diff.txt ] && echo "false" || echo "true"
-
+clean:
+	rm -rf fizzbuzz.txt fizzbuzz
