@@ -6,4 +6,5 @@ collatz.txt: collatz
 test: collatz.txt
 	diff collatz.txt collatz_expected.txt > diff.txt
 	[ -s diff.txt ] && echo "false" || echo "true"
-
+clean:
+	rm -rf collatz.txt collatz
