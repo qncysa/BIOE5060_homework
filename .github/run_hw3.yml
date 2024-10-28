@@ -1,0 +1,43 @@
+name: test_all_units              # name of the action to be shown in the log
+on:                               # on what condition to trigger this action
+  push:                           # trigger when push changes
+    branches:
+      - main
+    tags:
+      - '*'
+  pull_request:                   # trigger when accepting pull requests
+    branches:
+      - main
+
+jobs:                             # workflows are made of parallel jobs running on virtual machines
+  unit_2-5:                       # job 1: build and test the code; you can have additional jobs to upload/deploy
+    name: Build/test unit_2-5     # name of job 1
+    strategy:
+      matrix:                     # build and test on 4 OSes provided by github
+        os: [ubuntu-22.04, macos-12, macos-14, windows-2019]
+    runs-on: ${{ matrix.os }}
+    defaults:                     # forcing each OS to use bash as default
+      run:
+        shell: bash
+    steps:                        # each job is made of steps
+      - name: Checkout repo       # each step has a name, and a bunch of commands
+        uses: actions/checkout@v3
+        with:
+          submodules: 'recursive'
+      - name: Install dependencies (Linux only)
+        if: ${{ runner.os == 'Linux' }}   # use these variables to limit a step only on a specific OS
+        run: |
+          sudo apt-get update && sudo apt-get install -y gcc
+      - name: Install dependencies (MacOS only)
+        if: ${{ runner.os == 'macOS' }}
+        run: |
+          brew install gcc@12
+      - name: Setting up C compiler CC (Windows only) # specifically set CC for Windows, as Windows default does not set cc to gcc
+        if: ${{ runner.os == 'Windows' }}
+        run: |
+          echo 'CC=gcc' >> $GITHUB_ENV   # using this to change/add environment variables, here we set C compiler on windows as gcc
+      - name: Build and test program Q1 # build software
+        run: |
+          cd BIOE5060_homework/HW03/Q1
+          make clean
+          make test
