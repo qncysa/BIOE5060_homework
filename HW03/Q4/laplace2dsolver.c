@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include "laplace2d_func.h"
 
 void main(int argc, char **argv){
