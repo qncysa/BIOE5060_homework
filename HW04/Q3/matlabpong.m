@@ -114,9 +114,10 @@ timerdata=get(uidata.timer, 'userdata');
 timerdata.pong = hpong;        % this is the handle to the pingpong dot object
 timerdata.redbat = hredbat;    % this is the handle to the red-bat line object
 timerdata.bluebat = hbluebat;  % this is the handle to the blue-bat line object
-timerdata.dir = rand(1,2);     % this is a random direction
-timerdata.dir = timerdata.dir./norm(timerdata.dir);
+timerdata.dir = rand(1,2) * 2 - 1;     % this is a random direction
+timerdata.dir = timerdata.dir / norm(timerdata.dir);
 
+timerdata.userdata = handles;
 set(uidata.timer, 'userdata', timerdata);
 set(handles.fmMain, 'userdata', uidata);
 
@@ -154,10 +155,12 @@ stop(uidata.timer)
 function sbSpeed_Callback(hObject, eventdata, handles)
 %% TODO: when this slider bar changes, you should set the timer's period accordingly
 % timer's period = (1/get(handles.sbSpeed, 'value'))
-    Period = (1/get(handles.sbSpeed, 'value'));
+    speedValue = get(hObject, 'Value');
+    
+    newPeriod = (1 / speedValue);
     uidata = get(handles.fmMain, 'userdata');
-    newPeriod = 1 / get(handles.sbSpeed, 'value');
     set(uidata.timer, 'Period', newPeriod);
+    set(handles.fmMain, 'userdata', uidata);
 
 
 %uidata = get(handles.fmMain, 'userdata');
@@ -186,9 +189,10 @@ function updatepong(timerobj, event)
 %    team's score (handles.txRedScore) by 1; if exit from the right side, increase red
 %    team's score (handles.txBlueScore) by 1; then relaunch from the center
 %    at a random angle.
-disp('updatepong function executed');
+
+%disp('updatepong function executed');
 timerdata = get(timerobj, 'userdata');
-handles = timerdata.userdata;
+handles = timerobj.UserData;
 
 
 ball_x = get(timerdata.pong, 'xdata');    % use timer.pong to get its x/y data
@@ -217,8 +221,9 @@ new_y = ball_y + dy * 0.01;
             new_x = 0; % Ensure position doesn't go out of bounds
         else
             % Increase blue team's score and relaunch from center
-            score = str2double(get(handles.txBlueScore, 'String')) + 1;
-            set(handles.txBlueScore, 'String', num2str(score));
+            blueScore = str2double(get(timerdata.txBlueScore, 'String'));
+            blueScore = blueScore + 1;
+            set(timerdata.txBlueScore, 'String', num2str(blueScore));
             new_x = 0.5; new_y = 0.5;
             dx = rand(1) * 2 - 1; dy = rand(1) * 2 - 1;
             [dx, dy] = normalize([dx, dy]);
@@ -230,8 +235,9 @@ new_y = ball_y + dy * 0.01;
             new_x = 1; % Ensure position doesn't go out of bounds
         else
             % Increase red team's score and relaunch from center
-            score = str2double(get(handles.txRedScore, 'String')) + 1;
-            set(handles.txRedScore, 'String', num2str(score));
+            redScore = str2double(get(timerdata.txRedScore, 'String'));
+            redScore = redScore + 1;
+            set(timerdata.txRedScore, 'String', num2str(redScore));
             new_x = 0.5; new_y = 0.5;
             dx = rand(1) * 2 - 1; dy = rand(1) * 2 - 1;
             [dx, dy] = [dx, dy] / norm([dx, dy]);
@@ -247,8 +253,8 @@ new_y = ball_y + dy * 0.01;
 % use these variables to move the pingpong or changing direction, or
 % restart the game
 
-get(timerdata.pong, {'xdata', 'ydata'})    % use timer.pong to get its x/y data
-get(timerdata.redbat, 'ydata')             % use timer.redbat/timer.bluebat to get their ydata
+get(timerdata.pong, {'xdata', 'ydata'});    % use timer.pong to get its x/y data
+get(timerdata.redbat, 'ydata');             % use timer.redbat/timer.bluebat to get their ydata
 
 
 % at the end of the function, save the updated timerdata to timerobj.userdata

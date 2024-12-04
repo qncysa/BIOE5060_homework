@@ -55,17 +55,16 @@ classdef BlackWhite2D
         % growth operation with matrix operations
         neighbors = false(size(output));
         for k = 1:numel(mask)
-          if mask(k)
-            [rowShift, colShift] = ind2sub(size(mask), k);
-            rowShift = rowShift - R - 1;
-            colShift = colShift - R - 1;
-
-            neighbors = neighbors & paddedImage((1:size(output, 1)) + R + rowShift, (1:size(output, 2)) + R + colShift);
+            if mask(k)
+                [rowShift, colShift] = ind2sub(size(mask), k);
+                rowShift = rowShift - R - 1;
+                colShift = colShift - R - 1;
+                neighbors = neighbors | paddedImage((1:size(output, 1)) + R + rowShift, (1:size(output, 2)) + R + colShift);
             end
-          end
-          output = neighbors;
         end
+        output = neighbors;
       end
+    end
 
     % shrink operation method
     function output = shrink(obj, iternum, newmask)
@@ -81,33 +80,45 @@ classdef BlackWhite2D
       % mask dimensions
       [mRows, mCols] = size(mask);
       if mod(mRows, 2) == 0 || mod(mCols, 2) == 0
-        error('mask dimensions must be odd');
+          error('mask dimensions must be odd');
       end
 
       R = floor(mRows/2)
       output = obj.image0;
 
-      
       for iter = 1:iternum
-        paddedImage = padarray(output, [R R], 0);
+          paddedImage = padarray(output, [R R], 1);
 
-        % shrink operation
-        %neighbors = true(size(output));
-        neighbors = output;
-        neighborCounts = zeros(size(output));
-        for k = 1:numel(mask)
-          if mask(k)
-            [rowShift, colShift] = ind2sub(size(mask), k);
-            rowShift = rowShift - R - 1;
-            colShift = colShift - R - 1;
-
-            neighborCounts = neighborCounts + paddedImage((1:size(output, 1)) + R + rowShift, (1:size(output, 2)) + R + colShift);
-            %neighbors = neighbors & (neighborCount == sum(mask(:)));
-            %neighbors = neighbors & ~paddedImage((1:size(output, 1)) + R + rowShift, (1:size(output, 2)) + R + colShift)
+          % shrink operation
+        
+          neighbors = false(size(output));
+          neighborCounts = zeros(size(output));
+          for k = 1:numel(mask)
+              if mask(k)
+                  [rowShift, colShift] = ind2sub(size(mask), k);
+                  rowShift = rowShift - R - 1;
+                  colShift = colShift - R - 1;
+                  if ~(rowShift == 0 && colShift == 0)
+                  neighborCounts = neighborCounts + paddedImage((1:size(output, 1)) + R + rowShift, (1:size(output, 2)) + R + colShift);
+                  %neighbors = neighbors & (neighborCounts == sum(mask(:)));
+                  neighbors = neighbors | ~paddedImage((1:size(output, 1)) + R + rowShift, (1:size(output, 2)) + R + colShift)
+                  end
+              end
           end
-        end
-        neighbors = neighbors & (neighborCounts < sum(mask(:)));
-        output = neighbors
+          output = neighbors & (neighborCounts == sum(mask(:))) & output;
+          %output = neighbors & output
+          %output = output & (neighbors == mask);
+        
+%{
+          for i = 1:size(output, 1)
+              for j = 1:size(output, 2)
+                  neighborhood = paddedImage(i:i+mRows-1, j:j+mCols-1);
+                  if ~all(neighborhood(:) == mask(:))
+                      output(i, j) = 0
+                  end
+              end
+          end
+%}
       end
     end
 
